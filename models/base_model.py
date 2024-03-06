@@ -11,16 +11,35 @@ class BaseModel:
     Represent a base model.
     '''
 
-    def __init__(self, id=None, created_at=None, updated_at=None):
+    def __init__(self, *args, **kwargs):
         '''
         Initialize a new class
         id (string) : a uuid for the instance created
         created_at (datetime) : current datetime when an instance is created
         updated_at (datetime) : current datetime when an instance is updated
         '''
-        self.id = id if id else str(uuid.uuid4())
-        self.created_at = created_at if created_at else datetime.now()
-        self.updated_at = updated_at if updated_at else datetime.now()
+        self.id = str(uuid.uuid4())
+        self.created_at = datetime.now()
+        self.updated_at = datetime.now()
+
+        for key, value in kwargs.items():
+            if key == 'id':
+                self.id = value
+            elif key == 'created_at':
+                self.created_at = self.parse_datetime(value)
+            elif key == 'updated_at':
+                self.updated_at = self.parse_datetime(value)
+
+    def parse_datetime(self, datetime_string):
+        '''
+        Parse a datetime string or return the current datetime if None
+        datetime_string (str): Datetime string to parse
+        '''
+        if isinstance(datetime_string, datetime):
+            return datetime_string
+        elif datetime_string:
+            return datetime.strptime(datetime_string, "%Y-%m-%dT%H:%M:%S.%f")
+        return datetime.now()
 
     def __str__(self):
         '''

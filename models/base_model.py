@@ -5,6 +5,7 @@ Defines all common attributes/methods for other classes
 
 import uuid
 from datetime import datetime
+import models
 
 class BaseModel:
     '''
@@ -22,13 +23,16 @@ class BaseModel:
         self.created_at = datetime.now()
         self.updated_at = datetime.now()
 
-        for key, value in kwargs.items():
-            if key == 'id':
-                self.id = value
-            elif key == 'created_at':
-                self.created_at = self.parse_datetime(value)
-            elif key == 'updated_at':
-                self.updated_at = self.parse_datetime(value)
+        if kwargs:
+            for key, value in kwargs.items():
+                if key == 'id':
+                    self.id = value
+                elif key == 'created_at':
+                    self.created_at = self.parse_datetime(value)
+                elif key == 'updated_at':
+                    self.updated_at = self.parse_datetime(value)
+        else:
+            models.storage.new(self)
 
     def parse_datetime(self, datetime_string):
         '''
@@ -52,6 +56,7 @@ class BaseModel:
         Update the instance attribute updated_at with the current datetime
         '''
         self.updated_at = datetime.now()
+        models.storage.save()
 
     def to_dict(self):
         '''

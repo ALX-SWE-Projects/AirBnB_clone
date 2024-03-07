@@ -4,6 +4,7 @@ Defines JSON file
 '''
 
 import json
+from models.base_model import BaseModel
 
 class FileStorage:
     '''
@@ -30,9 +31,21 @@ class FileStorage:
         '''
         Serializes __objects to the JSON file (path: __file_path)
         '''
-        new_obj = {k: v.to_dict() for k, v in self.__objects.items()}
+        try:
+            with open(self.__file_path, 'r', encoding='utf-8') as file:
+                existing_data = json.load(file)
+        except FileNotFoundError:
+            existing_data = {}
+
+        new_obj = {}
+        for key, value in self.__objects.items():
+            if isinstance(value, BaseModel):
+                new_obj[key] = value.to_dict()
+
+        existing_data.update(new_obj)
+
         with open(self.__file_path, 'w', encoding='utf-8') as file:
-            json.dump(new_obj, file)
+            json.dump(existing_data, file)
 
     def reload(self):
         '''
